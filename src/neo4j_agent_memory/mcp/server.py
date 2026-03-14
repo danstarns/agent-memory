@@ -169,15 +169,14 @@ try:
                 allow_origins: CORS allowed origins (defaults to ["*"]).
             """
             middleware = _build_cors_middleware(allow_origins)
-            await self._mcp.run_async(
-                transport="sse", host=host, port=port, middleware=middleware
-            )
+            await self._mcp.run_async(transport="sse", host=host, port=port, middleware=middleware)
 
         async def run_http(
             self,
             host: str = "127.0.0.1",
             port: int = 8080,
             allow_origins: list[str] | None = None,
+            stateless_http: bool = False,
         ) -> None:
             """Run the MCP server using HTTP transport.
 
@@ -188,6 +187,9 @@ try:
                 host: Host to bind to.
                 port: Port to listen on.
                 allow_origins: CORS allowed origins (defaults to ["*"]).
+                stateless_http: If True, disable session ID tracking.
+                    Required for browser-based MCP clients that don't
+                    forward the Mcp-Session-Id header.
             """
             middleware = _build_cors_middleware(allow_origins)
             await self._mcp.run_async(
@@ -195,6 +197,7 @@ try:
                 host=host,
                 port=port,
                 middleware=middleware,
+                stateless_http=stateless_http,
             )
 
     async def run_server(
@@ -206,6 +209,7 @@ try:
         host: str = "127.0.0.1",
         port: int = 8080,
         allow_origins: list[str] | None = None,
+        stateless_http: bool = False,
     ) -> None:
         """Run the MCP server with Neo4j connection.
 
@@ -220,6 +224,8 @@ try:
             host: Host for network transports.
             port: Port for network transports.
             allow_origins: CORS allowed origins for HTTP transports.
+            stateless_http: If True, disable session ID tracking for HTTP
+                transport. Required for browser-based MCP clients.
         """
         from pydantic import SecretStr
 
@@ -244,6 +250,7 @@ try:
                 host=host,
                 port=port,
                 middleware=middleware,
+                stateless_http=stateless_http,
             )
         else:
             await server.run_async(transport="stdio")
@@ -320,6 +327,14 @@ def main() -> None:
         "Example: --allow-origin https://example.com --allow-origin https://app.example.com",
     )
     parser.add_argument(
+        "--stateless",
+        action="store_true",
+        default=False,
+        help="Disable session ID tracking for HTTP transport. "
+        "Required for browser-based MCP clients that "
+        "don't forward the Mcp-Session-Id header.",
+    )
+    parser.add_argument(
         "--openai-api-key",
         default=os.environ.get("OPENAI_API_KEY", ""),
         help="OpenAI API key (for embeddings/extraction)",
@@ -340,6 +355,7 @@ def main() -> None:
             host=args.host,
             port=args.port,
             allow_origins=args.allow_origins,
+            stateless_http=args.stateless,
         )
     )
 

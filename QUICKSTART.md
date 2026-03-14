@@ -34,6 +34,13 @@ uv run python -m neo4j_agent_memory.mcp.server \
 
 Endpoint: `http://localhost:5000/mcp` — POST JSON-RPC, get JSON back.
 
+**Browser-based clients** require `--stateless` to disable session ID tracking:
+
+```bash
+uv run python -m neo4j_agent_memory.mcp.server \
+  --transport http --port 5000 --neo4j-password test-password --stateless
+```
+
 ### SSE
 
 ```bash
@@ -57,9 +64,14 @@ Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_conf
     "neo4j-memory": {
       "command": "uv",
       "args": [
-        "--directory", "/path/to/agent-memory",
-        "run", "python", "-m", "neo4j_agent_memory.mcp.server",
-        "--neo4j-password", "test-password"
+        "--directory",
+        "/path/to/agent-memory",
+        "run",
+        "python",
+        "-m",
+        "neo4j_agent_memory.mcp.server",
+        "--neo4j-password",
+        "test-password"
       ]
     }
   }
@@ -79,32 +91,33 @@ uv run python -m neo4j_agent_memory.mcp.server \
 
 ## Tools
 
-| Tool | Description |
-|------|-------------|
-| `memory_search` | Hybrid vector + graph search |
-| `memory_store` | Store messages, facts, preferences |
-| `entity_lookup` | Get entity with relationships |
-| `conversation_history` | Get session history |
-| `graph_query` | Read-only Cypher queries |
+| Tool                   | Description                        |
+| ---------------------- | ---------------------------------- |
+| `memory_search`        | Hybrid vector + graph search       |
+| `memory_store`         | Store messages, facts, preferences |
+| `entity_lookup`        | Get entity with relationships      |
+| `conversation_history` | Get session history                |
+| `graph_query`          | Read-only Cypher queries           |
 
 ## All flags
 
-| Flag | Default | Description |
-|------|---------|-------------|
-| `--transport` | `stdio` | `stdio`, `sse`, or `http` |
-| `--port` | `8080` | Port for HTTP transports |
-| `--host` | `127.0.0.1` | Bind address (`0.0.0.0` for external) |
-| `--neo4j-uri` | `bolt://localhost:7687` | Neo4j URI |
-| `--neo4j-user` | `neo4j` | Neo4j username |
-| `--neo4j-password` | _(required)_ | Neo4j password |
-| `--neo4j-database` | `neo4j` | Neo4j database |
-| `--allow-origin` | `*` | CORS origin (repeatable) |
-| `--openai-api-key` | `$OPENAI_API_KEY` | OpenAI API key |
+| Flag               | Default                 | Description                                                |
+| ------------------ | ----------------------- | ---------------------------------------------------------- |
+| `--transport`      | `stdio`                 | `stdio`, `sse`, or `http`                                  |
+| `--port`           | `8080`                  | Port for HTTP transports                                   |
+| `--host`           | `127.0.0.1`             | Bind address (`0.0.0.0` for external)                      |
+| `--neo4j-uri`      | `bolt://localhost:7687` | Neo4j URI                                                  |
+| `--neo4j-user`     | `neo4j`                 | Neo4j username                                             |
+| `--neo4j-password` | _(required)_            | Neo4j password                                             |
+| `--neo4j-database` | `neo4j`                 | Neo4j database                                             |
+| `--allow-origin`   | `*`                     | CORS origin (repeatable)                                   |
+| `--stateless`      | `false`                 | Disable session ID tracking (required for browser clients) |
+| `--openai-api-key` | `$OPENAI_API_KEY`       | OpenAI API key                                             |
 
 ## Troubleshooting
 
-| Error | Fix |
-|-------|-----|
-| `No module named 'fastmcp'` | `uv sync --extra mcp` |
-| Neo4j connection refused | `make neo4j-start && make neo4j-wait` |
-| Browser client: no tools | Switch to `--transport http` |
+| Error                       | Fix                                   |
+| --------------------------- | ------------------------------------- |
+| `No module named 'fastmcp'` | `uv sync --extra mcp`                 |
+| Neo4j connection refused    | `make neo4j-start && make neo4j-wait` |
+| Browser client: no tools    | Use `--transport http --stateless`    |
