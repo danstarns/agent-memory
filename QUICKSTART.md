@@ -5,18 +5,18 @@
 ```bash
 git clone https://github.com/neo4j-labs/agent-memory.git
 cd agent-memory
-uv sync --extra mcp && uv pip install uvicorn starlette
+uv sync --extra mcp
 make neo4j-start && make neo4j-wait
 export OPENAI_API_KEY=sk-...
 uv run python -m neo4j_agent_memory.mcp.server \
-  --transport streamable-http --port 5000 --neo4j-password test-password
+  --transport http --port 5000 --neo4j-password test-password
 ```
 
 > **Note:** `OPENAI_API_KEY` is required for embedding-based search (`memory_search`, `memory_store`). You can also pass it inline:
 >
 > ```bash
 > OPENAI_API_KEY=sk-... uv run python -m neo4j_agent_memory.mcp.server \
->   --transport streamable-http --port 5000 --neo4j-password test-password
+>   --transport http --port 5000 --neo4j-password test-password
 > ```
 >
 > Or use the `--openai-api-key` flag instead of the environment variable.
@@ -25,11 +25,11 @@ Server runs at `http://localhost:5000/mcp`. All CORS origins allowed by default.
 
 ## Transports
 
-### Streamable HTTP (recommended)
+### HTTP (recommended)
 
 ```bash
 uv run python -m neo4j_agent_memory.mcp.server \
-  --transport streamable-http --port 5000 --neo4j-password test-password
+  --transport http --port 5000 --neo4j-password test-password
 ```
 
 Endpoint: `http://localhost:5000/mcp` — POST JSON-RPC, get JSON back.
@@ -72,7 +72,7 @@ All origins allowed by default. To restrict:
 
 ```bash
 uv run python -m neo4j_agent_memory.mcp.server \
-  --transport streamable-http --port 5000 --neo4j-password test-password \
+  --transport http --port 5000 --neo4j-password test-password \
   --allow-origin https://app.example.com \
   --allow-origin https://admin.example.com
 ```
@@ -91,7 +91,7 @@ uv run python -m neo4j_agent_memory.mcp.server \
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `--transport` | `stdio` | `stdio`, `sse`, or `streamable-http` |
+| `--transport` | `stdio` | `stdio`, `sse`, or `http` |
 | `--port` | `8080` | Port for HTTP transports |
 | `--host` | `127.0.0.1` | Bind address (`0.0.0.0` for external) |
 | `--neo4j-uri` | `bolt://localhost:7687` | Neo4j URI |
@@ -105,7 +105,6 @@ uv run python -m neo4j_agent_memory.mcp.server \
 
 | Error | Fix |
 |-------|-----|
-| `No module named 'mcp'` | `uv sync --extra mcp` |
-| `SSE transport requires additional dependencies` | `uv pip install uvicorn starlette` |
+| `No module named 'fastmcp'` | `uv sync --extra mcp` |
 | Neo4j connection refused | `make neo4j-start && make neo4j-wait` |
-| Browser client: no tools | Switch to `--transport streamable-http` |
+| Browser client: no tools | Switch to `--transport http` |
